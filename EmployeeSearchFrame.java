@@ -1,10 +1,8 @@
 
-/**
- * Practicing using git and uploading files (v1)
- * Check by Biplov Poudel
- *  Lets see what's gonna happen
+/** Git Progamming assignment
+ * Course: Database systems
+ *
  */
-
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
