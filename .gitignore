@@ -1,11 +1,3 @@
 *.class
-<<<<<<< HEAD
 .vscode/
-=======
-.vscode/
-<<<<<<< HEAD
-.database.pro.properties
->>>>>>> BiplovBranch
-=======
 .database.prop.properties
->>>>>>> BiplovBranch
