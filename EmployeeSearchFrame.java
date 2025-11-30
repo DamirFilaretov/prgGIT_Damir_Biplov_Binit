@@ -150,8 +150,11 @@ public class EmployeeSearchFrame extends JFrame {
         lstProject = new JList<String>(new DefaultListModel<String>());
         lstProject.setFont(new Font("Tahoma", Font.PLAIN, 12));
         lstProject.setModel(project);
-        lstProject.setBounds(225, 84, 150, 42);
-        contentPane.add(lstProject);
+
+        //making project list scrollable
+        JScrollPane scrollProject = new JScrollPane(lstProject);
+        scrollProject.setBounds(220, 84, 155, 42);
+        contentPane.add(scrollProject);
         
         chckbxNotDept = new JCheckBox("Not");
         chckbxNotDept.setBounds(71, 133, 59, 23);
@@ -162,8 +165,12 @@ public class EmployeeSearchFrame extends JFrame {
         contentPane.add(chckbxNotProject);
         
         lstDepartment = new JList<String>(new DefaultListModel<String>());
-        lstDepartment.setBounds(36, 84, 172, 40);
-        contentPane.add(lstDepartment);
+
+        //making department list scrollable
+        JScrollPane scrollDept = new JScrollPane(lstDepartment);
+        scrollDept.setBounds(36, 84, 150, 42);
+        contentPane.add(scrollDept);
+
         lstDepartment.setFont(new Font("Tahoma", Font.PLAIN, 12));
         lstDepartment.setModel(department);
         
@@ -277,7 +284,10 @@ public class EmployeeSearchFrame extends JFrame {
         contentPane.add(btnClear);
         
         textAreaEmployee = new JTextArea();
-        textAreaEmployee.setBounds(36, 197, 339, 68);
-        contentPane.add(textAreaEmployee);
+        
+        //making employee text area scrollable
+        JScrollPane scrollEmployee = new JScrollPane(textAreaEmployee);
+        scrollEmployee.setBounds(36, 197, 339, 68);
+        contentPane.add(scrollEmployee);
     }
 }
