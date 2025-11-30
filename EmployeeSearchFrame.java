@@ -174,77 +174,92 @@ public class EmployeeSearchFrame extends JFrame {
         
         JButton btnSearch = new JButton("Search");
         btnSearch.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                Connection con = null;
-                PreparedStatement pstmt = null;
-                ResultSet rs = null;
+    public void actionPerformed(ActionEvent e) {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
 
-                try {
-                    con = getConnection();
-                    
-                    // Base Query
-                    StringBuilder query = new StringBuilder();
-                    query.append("SELECT DISTINCT E.Fname, E.Lname FROM EMPLOYEE E ");
-                    query.append("JOIN DEPARTMENT D ON E.Dno = D.Dnumber ");
-                    query.append("JOIN WORKS_ON W ON E.Ssn = W.Essn ");
-                    query.append("JOIN PROJECT P ON W.Pno = P.Pnumber ");
-                    query.append("WHERE 1=1 ");
+        try {
+            con = getConnection();
+            
+            StringBuilder query = new StringBuilder();
+            query.append("SELECT DISTINCT E.Fname, E.Lname FROM EMPLOYEE E ");
+            query.append("JOIN DEPARTMENT D ON E.Dno = D.Dnumber ");
+            query.append("JOIN WORKS_ON W ON E.Ssn = W.Essn ");
+            query.append("JOIN PROJECT P ON W.Pno = P.Pnumber ");
+            query.append("WHERE 1=1 ");
 
-                    String selectedDept = lstDepartment.getSelectedValue();
-                    String selectedProj = lstProject.getSelectedValue();
+            // get multiple selections
+            java.util.List<String> selectedDepts = lstDepartment.getSelectedValuesList();
+            java.util.List<String> selectedProjs = lstProject.getSelectedValuesList();
 
-                    // Logic for Department Selection
-                    if (selectedDept != null) {
-                        String operator = chckbxNotDept.isSelected() ? "!=" : "=";
-                        query.append("AND D.Dname ").append(operator).append(" ? ");
-                    }
-
-                    // Logic for Project Selection
-                    if (selectedProj != null) {
-                        String operator = chckbxNotProject.isSelected() ? "!=" : "=";
-                        query.append("AND P.Pname ").append(operator).append(" ? ");
-                    }
-
-                    pstmt = con.prepareStatement(query.toString());
-
-                
-                    int paramIndex = 1;
-                    if (selectedDept != null) {
-                        pstmt.setString(paramIndex++, selectedDept);
-                    }
-                    if (selectedProj != null) {
-                        pstmt.setString(paramIndex++, selectedProj);
-                    }
-
-                    rs = pstmt.executeQuery();
-                    
-                    // Display Results
-                    StringBuilder results = new StringBuilder();
-                    boolean found = false;
-                    while (rs.next()) {
-                        found = true;
-                        results.append(rs.getString("Fname"))
-                               .append(" ")
-                               .append(rs.getString("Lname"))
-                               .append("\n");
-                    }
-                    
-                    if (!found) {
-                        textAreaEmployee.setText("No employees found matching criteria.");
-                    } else {
-                        textAreaEmployee.setText(results.toString());
-                    }
-
-                } catch (Exception ex) {
-                    textAreaEmployee.setText("Error searching:\n" + ex.getMessage());
-                    ex.printStackTrace();
-                } finally {
-                    try { if (rs != null) rs.close(); } catch (SQLException se) {}
-                    try { if (pstmt != null) pstmt.close(); } catch (SQLException se) {}
-                    try { if (con != null) con.close(); } catch (SQLException se) {}
+            // ----- Departments -----
+            if (!selectedDepts.isEmpty()) {
+                if (chckbxNotDept.isSelected()) {
+                    query.append("AND D.Dname NOT IN (");
+                } else {
+                    query.append("AND D.Dname IN (");
                 }
+                
+                // add placeholders
+                for (int i = 0; i < selectedDepts.size(); i++) {
+                    query.append("?");
+                    if (i < selectedDepts.size() - 1) query.append(", ");
+                }
+                query.append(") ");
             }
-        });
+
+            // ----- Projects -----
+            if (!selectedProjs.isEmpty()) {
+                if (chckbxNotProject.isSelected()) {
+                    query.append("AND P.Pname NOT IN (");
+                } else {
+                    query.append("AND P.Pname IN (");
+                }
+                
+                for (int i = 0; i < selectedProjs.size(); i++) {
+                    query.append("?");
+                    if (i < selectedProjs.size() - 1) query.append(", ");
+                }
+                query.append(") ");
+            }
+
+            pstmt = con.prepareStatement(query.toString());
+
+            // ----- Set Parameters -----
+            int paramIndex = 1;
+
+            for (String dept : selectedDepts) {
+                pstmt.setString(paramIndex++, dept);
+            }
+            for (String proj : selectedProjs) {
+                pstmt.setString(paramIndex++, proj);
+            }
+
+            rs = pstmt.executeQuery();
+            
+            StringBuilder results = new StringBuilder();
+            boolean found = false;
+            while (rs.next()) {
+                found = true;
+                results.append(rs.getString("Fname")).append(" ").append(rs.getString("Lname")).append("\n");
+            }
+
+            if (!found)
+                textAreaEmployee.setText("No employees found matching criteria.");
+            else
+                textAreaEmployee.setText(results.toString());
+
+        } catch (Exception ex) {
+            textAreaEmployee.setText("Error searching:\n" + ex.getMessage());
+            ex.printStackTrace();
+        } finally {
+            try { if (rs != null) rs.close(); } catch (SQLException se) {}
+            try { if (pstmt != null) pstmt.close(); } catch (SQLException se) {}
+            try { if (con != null) con.close(); } catch (SQLException se) {}
+        }
+    }
+});
         btnSearch.setBounds(80, 276, 89, 23);
         contentPane.add(btnSearch);
         
