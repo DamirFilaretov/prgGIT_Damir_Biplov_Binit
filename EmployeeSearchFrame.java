@@ -289,5 +289,6 @@ public class EmployeeSearchFrame extends JFrame {
         JScrollPane scrollEmployee = new JScrollPane(textAreaEmployee);
         scrollEmployee.setBounds(36, 197, 339, 68);
         contentPane.add(scrollEmployee);
+
     }
 }
