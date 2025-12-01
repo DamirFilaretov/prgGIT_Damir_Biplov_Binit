@@ -1,8 +1,3 @@
-
-/** Git Progamming assignment
- * Course: Database systems
- *
- */
 import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -14,14 +9,14 @@ import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JCheckBox;
+import javax.swing.JOptionPane; 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import java.sql.*;
-import java.io.FileReader;
-import java.util.Properties;
+import java.util.List;
 
 public class EmployeeSearchFrame extends JFrame {
 
@@ -29,9 +24,9 @@ public class EmployeeSearchFrame extends JFrame {
     private JPanel contentPane;
     private JTextField txtDatabase;
     private JList<String> lstDepartment;
-    private DefaultListModel<String> department = new DefaultListModel<String>();
+    private DefaultListModel<String> departmentModel = new DefaultListModel<String>();
     private JList<String> lstProject;
-    private DefaultListModel<String> project = new DefaultListModel<String>();
+    private DefaultListModel<String> projectModel = new DefaultListModel<String>();
     private JTextArea textAreaEmployee;
 
     private JCheckBox chckbxNotDept;
@@ -51,18 +46,6 @@ public class EmployeeSearchFrame extends JFrame {
                 }
             }
         });
-    }
-
-    //method to connect to the database
-    private Connection getConnection() throws Exception {
-        FileReader reader = new FileReader("database.prop.properties");
-        Properties p = new Properties();
-        p.load(reader);
-        String dbuser = p.getProperty("db.user");
-        String dbpassword = p.getProperty("db.password");
-        String dburl = p.getProperty("db.url");
-        
-        return DriverManager.getConnection(dburl, dbuser, dbpassword);
     }
 
     /**
@@ -89,187 +72,156 @@ public class EmployeeSearchFrame extends JFrame {
         txtDatabase.setColumns(10);
 
         JButton btnDBFill = new JButton("Fill");
-        /**
-         * The btnDBFill should fill the department and project JList with the
-         * departments and projects from your entered database name.
-         */
-        btnDBFill.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                Connection con = null;
-                Statement stmt = null;
-                ResultSet rs = null;
-                
-                try {
-                    department.clear();
-                    project.clear();
-                    
-                    con = getConnection();
-                    stmt = con.createStatement();
-                    
-                    // 1. Get Departments
-                    rs = stmt.executeQuery("SELECT Dname FROM DEPARTMENT ORDER BY Dname");
-                    while (rs.next()) {
-                        department.addElement(rs.getString("Dname"));
-                    }
-                    rs.close();
-                    
-                    // 2. Get Projects
-                    rs = stmt.executeQuery("SELECT Pname FROM PROJECT ORDER BY Pname");
-                    while (rs.next()) {
-                        project.addElement(rs.getString("Pname"));
-                    }
-                    
-                    textAreaEmployee.setText("Database connected. Lists filled.");
-                    
-                } catch (Exception ex) {
-                    textAreaEmployee.setText("Error filling lists:\n" + ex.getMessage());
-                    ex.printStackTrace();
-                } finally {
-                    // Clean up resources
-                    try { if (rs != null) rs.close(); } catch (SQLException se) {}
-                    try { if (stmt != null) stmt.close(); } catch (SQLException se) {}
-                    try { if (con != null) con.close(); } catch (SQLException se) {}
-                }
-            }
-        });
-        
         btnDBFill.setFont(new Font("Times New Roman", Font.BOLD, 12));
         btnDBFill.setBounds(307, 19, 68, 23);
         contentPane.add(btnDBFill);
         
+        // ---------------------------------------------------------
+        // UPDATED FILL BUTTON ACTION
+        // ---------------------------------------------------------
+        btnDBFill.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    // 1. Clear existing data (Reset)
+                    departmentModel.clear();
+                    projectModel.clear();
+                    textAreaEmployee.setText("");
+
+                    // 2. Get the database name from the text field
+                    String dbName = txtDatabase.getText();
+
+                    // 3. Use DatabaseHelper to get data
+                    List<String> depts = DatabaseHelper.getDepartments(dbName);
+                    List<String> projs = DatabaseHelper.getProjects(dbName);
+
+                    // 4. Fill the DefaultListModels
+                    for (String d : depts) {
+                        departmentModel.addElement(d);
+                    }
+                    for (String p : projs) {
+                        projectModel.addElement(p);
+                    }
+
+                    textAreaEmployee.setText("Database connected. Lists filled.");
+
+                } catch (Exception ex) {
+                    // ERROR POP-UP as requested
+                    JOptionPane.showMessageDialog(null, 
+                        "The database could not be opened.\nError: " + ex.getMessage(), 
+                        "Database Error", 
+                        JOptionPane.ERROR_MESSAGE);
+                    
+                    ex.printStackTrace();
+                }
+            }
+        });
+
         JLabel lblDepartment = new JLabel("Department");
         lblDepartment.setFont(new Font("Times New Roman", Font.BOLD, 12));
         lblDepartment.setBounds(52, 63, 89, 14);
         contentPane.add(lblDepartment);
-        
+
         JLabel lblProject = new JLabel("Project");
         lblProject.setFont(new Font("Times New Roman", Font.BOLD, 12));
         lblProject.setBounds(255, 63, 47, 14);
         contentPane.add(lblProject);
-        
-        lstProject = new JList<String>(new DefaultListModel<String>());
-        lstProject.setFont(new Font("Tahoma", Font.PLAIN, 12));
-        lstProject.setModel(project);
 
-        //making project list scrollable
+        lstProject = new JList<String>();
+        lstProject.setFont(new Font("Tahoma", Font.PLAIN, 12));
+        lstProject.setModel(projectModel);
+
         JScrollPane scrollProject = new JScrollPane(lstProject);
         scrollProject.setBounds(220, 84, 155, 42);
         contentPane.add(scrollProject);
-        
+
         chckbxNotDept = new JCheckBox("Not");
         chckbxNotDept.setBounds(71, 133, 59, 23);
         contentPane.add(chckbxNotDept);
-        
+
         chckbxNotProject = new JCheckBox("Not");
         chckbxNotProject.setBounds(270, 133, 59, 23);
         contentPane.add(chckbxNotProject);
-        
-        lstDepartment = new JList<String>(new DefaultListModel<String>());
 
-        //making department list scrollable
+        lstDepartment = new JList<String>();
+        lstDepartment.setFont(new Font("Tahoma", Font.PLAIN, 12));
+        lstDepartment.setModel(departmentModel);
+        
         JScrollPane scrollDept = new JScrollPane(lstDepartment);
         scrollDept.setBounds(36, 84, 150, 42);
         contentPane.add(scrollDept);
 
-        lstDepartment.setFont(new Font("Tahoma", Font.PLAIN, 12));
-        lstDepartment.setModel(department);
-        
         JLabel lblEmployee = new JLabel("Employee");
         lblEmployee.setFont(new Font("Times New Roman", Font.BOLD, 12));
         lblEmployee.setBounds(52, 179, 89, 14);
         contentPane.add(lblEmployee);
-        
+
         JButton btnSearch = new JButton("Search");
-        btnSearch.addActionListener(new ActionListener() {
-    public void actionPerformed(ActionEvent e) {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-
-        try {
-            con = getConnection();
-            
-            StringBuilder query = new StringBuilder();
-            query.append("SELECT DISTINCT E.Fname, E.Lname FROM EMPLOYEE E ");
-            query.append("JOIN DEPARTMENT D ON E.Dno = D.Dnumber ");
-            query.append("JOIN WORKS_ON W ON E.Ssn = W.Essn ");
-            query.append("JOIN PROJECT P ON W.Pno = P.Pnumber ");
-            query.append("WHERE 1=1 ");
-
-            // get multiple selections
-            java.util.List<String> selectedDepts = lstDepartment.getSelectedValuesList();
-            java.util.List<String> selectedProjs = lstProject.getSelectedValuesList();
-
-            // ----- Departments -----
-            if (!selectedDepts.isEmpty()) {
-                if (chckbxNotDept.isSelected()) {
-                    query.append("AND D.Dname NOT IN (");
-                } else {
-                    query.append("AND D.Dname IN (");
-                }
-                
-                // add placeholders
-                for (int i = 0; i < selectedDepts.size(); i++) {
-                    query.append("?");
-                    if (i < selectedDepts.size() - 1) query.append(", ");
-                }
-                query.append(") ");
-            }
-
-            // ----- Projects -----
-            if (!selectedProjs.isEmpty()) {
-                if (chckbxNotProject.isSelected()) {
-                    query.append("AND P.Pname NOT IN (");
-                } else {
-                    query.append("AND P.Pname IN (");
-                }
-                
-                for (int i = 0; i < selectedProjs.size(); i++) {
-                    query.append("?");
-                    if (i < selectedProjs.size() - 1) query.append(", ");
-                }
-                query.append(") ");
-            }
-
-            pstmt = con.prepareStatement(query.toString());
-
-            // ----- Set Parameters -----
-            int paramIndex = 1;
-
-            for (String dept : selectedDepts) {
-                pstmt.setString(paramIndex++, dept);
-            }
-            for (String proj : selectedProjs) {
-                pstmt.setString(paramIndex++, proj);
-            }
-
-            rs = pstmt.executeQuery();
-            
-            StringBuilder results = new StringBuilder();
-            boolean found = false;
-            while (rs.next()) {
-                found = true;
-                results.append(rs.getString("Fname")).append(" ").append(rs.getString("Lname")).append("\n");
-            }
-
-            if (!found)
-                textAreaEmployee.setText("No employees found matching criteria.");
-            else
-                textAreaEmployee.setText(results.toString());
-
-        } catch (Exception ex) {
-            textAreaEmployee.setText("Error searching:\n" + ex.getMessage());
-            ex.printStackTrace();
-        } finally {
-            try { if (rs != null) rs.close(); } catch (SQLException se) {}
-            try { if (pstmt != null) pstmt.close(); } catch (SQLException se) {}
-            try { if (con != null) con.close(); } catch (SQLException se) {}
-        }
-    }
-});
         btnSearch.setBounds(80, 276, 89, 23);
         contentPane.add(btnSearch);
         
+        // Search Button Logic
+        btnSearch.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                Connection con = null;
+                PreparedStatement pstmt = null;
+                ResultSet rs = null;
+
+                try {
+                    String dbName = txtDatabase.getText();
+                    con = DatabaseHelper.getConnection(dbName); // Use Helper here too!
+
+                    StringBuilder query = new StringBuilder();
+                    query.append("SELECT DISTINCT E.Fname, E.Lname FROM EMPLOYEE E ");
+                    query.append("JOIN DEPARTMENT D ON E.Dno = D.Dnumber ");
+                    query.append("JOIN WORKS_ON W ON E.Ssn = W.Essn ");
+                    query.append("JOIN PROJECT P ON W.Pno = P.Pnumber ");
+                    query.append("WHERE 1=1 ");
+
+                    java.util.List<String> selectedDepts = lstDepartment.getSelectedValuesList();
+                    java.util.List<String> selectedProjs = lstProject.getSelectedValuesList();
+
+                    // Departments
+                    if (!selectedDepts.isEmpty()) {
+                        query.append("AND D.Dname ").append(chckbxNotDept.isSelected() ? "NOT IN (" : "IN (");
+                        for (int i = 0; i < selectedDepts.size(); i++) query.append(i == 0 ? "?" : ", ?");
+                        query.append(") ");
+                    }
+
+                    // Projects
+                    if (!selectedProjs.isEmpty()) {
+                        query.append("AND P.Pname ").append(chckbxNotProject.isSelected() ? "NOT IN (" : "IN (");
+                        for (int i = 0; i < selectedProjs.size(); i++) query.append(i == 0 ? "?" : ", ?");
+                        query.append(") ");
+                    }
+
+                    pstmt = con.prepareStatement(query.toString());
+
+                    int paramIndex = 1;
+                    for (String dept : selectedDepts) pstmt.setString(paramIndex++, dept);
+                    for (String proj : selectedProjs) pstmt.setString(paramIndex++, proj);
+
+                    rs = pstmt.executeQuery();
+
+                    StringBuilder results = new StringBuilder();
+                    boolean found = false;
+                    while (rs.next()) {
+                        found = true;
+                        results.append(rs.getString("Fname")).append(" ").append(rs.getString("Lname")).append("\n");
+                    }
+
+                    if (!found) textAreaEmployee.setText("No employees found matching criteria.");
+                    else textAreaEmployee.setText(results.toString());
+
+                } catch (Exception ex) {
+                     JOptionPane.showMessageDialog(null, "Error Searching: " + ex.getMessage());
+                } finally {
+                    try { if (rs != null) rs.close(); } catch (SQLException se) {}
+                    try { if (pstmt != null) pstmt.close(); } catch (SQLException se) {}
+                    try { if (con != null) con.close(); } catch (SQLException se) {}
+                }
+            }
+        });
+
         JButton btnClear = new JButton("Clear");
         btnClear.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -282,13 +234,10 @@ public class EmployeeSearchFrame extends JFrame {
         });
         btnClear.setBounds(236, 276, 89, 23);
         contentPane.add(btnClear);
-        
+
         textAreaEmployee = new JTextArea();
-        
-        //making employee text area scrollable
         JScrollPane scrollEmployee = new JScrollPane(textAreaEmployee);
         scrollEmployee.setBounds(36, 197, 339, 68);
         contentPane.add(scrollEmployee);
-
     }
 }
