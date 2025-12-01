@@ -76,9 +76,7 @@ public class EmployeeSearchFrame extends JFrame {
         btnDBFill.setBounds(307, 19, 68, 23);
         contentPane.add(btnDBFill);
         
-        // ---------------------------------------------------------
-        // UPDATED FILL BUTTON ACTION
-        // ---------------------------------------------------------
+        //update fill button. 
         btnDBFill.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -105,7 +103,7 @@ public class EmployeeSearchFrame extends JFrame {
                     textAreaEmployee.setText("Database connected. Lists filled.");
 
                 } catch (Exception ex) {
-                    // ERROR POP-UP as requested
+                    // Error Message dialog
                     JOptionPane.showMessageDialog(null, 
                         "The database could not be opened.\nError: " + ex.getMessage(), 
                         "Database Error", 
@@ -159,7 +157,7 @@ public class EmployeeSearchFrame extends JFrame {
         btnSearch.setBounds(80, 276, 89, 23);
         contentPane.add(btnSearch);
         
-        // Search Button Logic
+        // Search button
         btnSearch.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 Connection con = null;
@@ -168,7 +166,7 @@ public class EmployeeSearchFrame extends JFrame {
 
                 try {
                     String dbName = txtDatabase.getText();
-                    con = DatabaseHelper.getConnection(dbName); // Use Helper here too!
+                    con = DatabaseHelper.getConnection(dbName);
 
                     StringBuilder query = new StringBuilder();
                     query.append("SELECT DISTINCT E.Fname, E.Lname FROM EMPLOYEE E ");
