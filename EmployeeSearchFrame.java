@@ -1,4 +1,5 @@
 import java.awt.EventQueue;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -14,9 +15,17 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+<<<<<<< HEAD
 
 import java.sql.*;
 import java.util.List;
+=======
+import java.sql.SQLException;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingWorker;
+>>>>>>> 8a2aeda9a0bf6be667083f3ac37099bb1edbcfaa
 
 public class EmployeeSearchFrame extends JFrame {
 
@@ -28,9 +37,6 @@ public class EmployeeSearchFrame extends JFrame {
     private JList<String> lstProject;
     private DefaultListModel<String> projectModel = new DefaultListModel<String>();
     private JTextArea textAreaEmployee;
-
-    private JCheckBox chckbxNotDept;
-    private JCheckBox chckbxNotProject;
 
     /**
      * Launch the application.
@@ -72,6 +78,7 @@ public class EmployeeSearchFrame extends JFrame {
         txtDatabase.setColumns(10);
 
         JButton btnDBFill = new JButton("Fill");
+<<<<<<< HEAD
         btnDBFill.setFont(new Font("Times New Roman", Font.BOLD, 12));
         btnDBFill.setBounds(307, 19, 68, 23);
         contentPane.add(btnDBFill);
@@ -113,6 +120,38 @@ public class EmployeeSearchFrame extends JFrame {
                 }
             }
         });
+=======
+        /**
+         * The btnDBFill should fill the department and project JList with the
+         * departments and projects from your entered database name.
+         */
+        btnDBFill.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String dbName = txtDatabase.getText().trim();
+                department.clear();
+                project.clear();
+                try {
+                    List<String> depts = DatabaseHelper.loadDepartments(dbName);
+                    for (String d : depts) {
+                        department.addElement(d);
+                    }
+                    List<String> projs = DatabaseHelper.loadProjects(dbName);
+                    for (String p : projs) {
+                        project.addElement(p);
+                    }
+                } catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(EmployeeSearchFrame.this,
+                            "The database could not be opened or data could not be loaded.",
+                            "Database Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        btnDBFill.setFont(new Font("Times New Roman", Font.BOLD, 12));
+        btnDBFill.setBounds(307, 19, 68, 23);
+        contentPane.add(btnDBFill);
+>>>>>>> 8a2aeda9a0bf6be667083f3ac37099bb1edbcfaa
 
         JLabel lblDepartment = new JLabel("Department");
         lblDepartment.setFont(new Font("Times New Roman", Font.BOLD, 12));
@@ -123,6 +162,7 @@ public class EmployeeSearchFrame extends JFrame {
         lblProject.setFont(new Font("Times New Roman", Font.BOLD, 12));
         lblProject.setBounds(255, 63, 47, 14);
         contentPane.add(lblProject);
+<<<<<<< HEAD
 
         lstProject = new JList<String>();
         lstProject.setFont(new Font("Tahoma", Font.PLAIN, 12));
@@ -147,6 +187,32 @@ public class EmployeeSearchFrame extends JFrame {
         JScrollPane scrollDept = new JScrollPane(lstDepartment);
         scrollDept.setBounds(36, 84, 150, 42);
         contentPane.add(scrollDept);
+=======
+
+        lstProject = new JList<String>(new DefaultListModel<String>());
+        lstProject.setFont(new Font("Tahoma", Font.PLAIN, 12));
+        lstProject.setModel(project);
+        lstProject.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        JScrollPane projectScrollPane = new JScrollPane(lstProject);
+        projectScrollPane.setBounds(225, 84, 150, 42);
+        contentPane.add(projectScrollPane);
+
+        JCheckBox chckbxNotDept = new JCheckBox("Not");
+        chckbxNotDept.setBounds(71, 133, 59, 23);
+        contentPane.add(chckbxNotDept);
+
+        JCheckBox chckbxNotProject = new JCheckBox("Not");
+        chckbxNotProject.setBounds(270, 133, 59, 23);
+        contentPane.add(chckbxNotProject);
+
+        lstDepartment = new JList<String>(new DefaultListModel<String>());
+        lstDepartment.setFont(new Font("Tahoma", Font.PLAIN, 12));
+        lstDepartment.setModel(department);
+        lstDepartment.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        JScrollPane departmentScrollPane = new JScrollPane(lstDepartment);
+        departmentScrollPane.setBounds(36, 84, 172, 42);
+        contentPane.add(departmentScrollPane);
+>>>>>>> 8a2aeda9a0bf6be667083f3ac37099bb1edbcfaa
 
         JLabel lblEmployee = new JLabel("Employee");
         lblEmployee.setFont(new Font("Times New Roman", Font.BOLD, 12));
@@ -154,6 +220,7 @@ public class EmployeeSearchFrame extends JFrame {
         contentPane.add(lblEmployee);
 
         JButton btnSearch = new JButton("Search");
+<<<<<<< HEAD
         btnSearch.setBounds(80, 276, 89, 23);
         contentPane.add(btnSearch);
         
@@ -219,6 +286,51 @@ public class EmployeeSearchFrame extends JFrame {
                 }
             }
         });
+=======
+        btnSearch.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String dbName = txtDatabase.getText().trim();
+                List<String> selectedDepts = lstDepartment.getSelectedValuesList();
+                List<String> selectedProjects = lstProject.getSelectedValuesList();
+                boolean notDept = chckbxNotDept.isSelected();
+                boolean notProject = chckbxNotProject.isSelected();
+                btnSearch.setEnabled(false);
+                textAreaEmployee.setText("Searching...");
+                SwingWorker<List<String>, Void> worker = new SwingWorker<List<String>, Void>() {
+                    @Override
+                    protected List<String> doInBackground() throws Exception {
+                        return DatabaseHelper.searchEmployees(dbName, selectedDepts, selectedProjects, notDept, notProject);
+                    }
+
+                    @Override
+                    protected void done() {
+                        btnSearch.setEnabled(true);
+                        try {
+                            List<String> employees = get();
+                            if (employees.isEmpty()) {
+                                textAreaEmployee.setText("(no employees found)");
+                            } else {
+                                StringBuilder sb = new StringBuilder();
+                                for (String emp : employees) {
+                                    sb.append(emp).append("\n");
+                                }
+                                textAreaEmployee.setText(sb.toString().trim());
+                            }
+                        } catch (Exception ex) {
+                            textAreaEmployee.setText("");
+                            JOptionPane.showMessageDialog(EmployeeSearchFrame.this,
+                                    "Error searching employees: " + ex.getMessage(),
+                                    "Database Error",
+                                    JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                };
+                worker.execute();
+            }
+        });
+        btnSearch.setBounds(80, 276, 89, 23);
+        contentPane.add(btnSearch);
+>>>>>>> 8a2aeda9a0bf6be667083f3ac37099bb1edbcfaa
 
         JButton btnClear = new JButton("Clear");
         btnClear.addActionListener(new ActionListener() {
@@ -234,8 +346,14 @@ public class EmployeeSearchFrame extends JFrame {
         contentPane.add(btnClear);
 
         textAreaEmployee = new JTextArea();
+<<<<<<< HEAD
         JScrollPane scrollEmployee = new JScrollPane(textAreaEmployee);
         scrollEmployee.setBounds(36, 197, 339, 68);
         contentPane.add(scrollEmployee);
+=======
+        JScrollPane employeeScrollPane = new JScrollPane(textAreaEmployee);
+        employeeScrollPane.setBounds(36, 197, 339, 68);
+        contentPane.add(employeeScrollPane);
+>>>>>>> 8a2aeda9a0bf6be667083f3ac37099bb1edbcfaa
     }
 }
