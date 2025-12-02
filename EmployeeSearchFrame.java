@@ -5,6 +5,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
 import java.awt.Font;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JList;
@@ -129,6 +130,7 @@ public class EmployeeSearchFrame extends JFrame {
         lstProject = new JList<String>();
         lstProject.setFont(new Font("Tahoma", Font.PLAIN, 12));
         lstProject.setModel(projectModel);
+        lstProject.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
         JScrollPane scrollProject = new JScrollPane(lstProject);
         scrollProject.setBounds(220, 84, 155, 42);
@@ -145,6 +147,7 @@ public class EmployeeSearchFrame extends JFrame {
         lstDepartment = new JList<String>();
         lstDepartment.setFont(new Font("Tahoma", Font.PLAIN, 12));
         lstDepartment.setModel(departmentModel);
+        lstDepartment.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         
         JScrollPane scrollDept = new JScrollPane(lstDepartment);
         scrollDept.setBounds(36, 84, 150, 42);
@@ -173,9 +176,8 @@ public class EmployeeSearchFrame extends JFrame {
                     StringBuilder query = new StringBuilder();
                     query.append("SELECT DISTINCT E.Fname, E.Lname FROM EMPLOYEE E ");
                     query.append("JOIN DEPARTMENT D ON E.Dno = D.Dnumber ");
-                    query.append("JOIN WORKS_ON W ON E.Ssn = W.Essn ");
-                    query.append("JOIN PROJECT P ON W.Pno = P.Pnumber ");
                     query.append("WHERE 1=1 ");
+
 
                     java.util.List<String> selectedDepts = lstDepartment.getSelectedValuesList();
                     java.util.List<String> selectedProjs = lstProject.getSelectedValuesList();
@@ -188,11 +190,27 @@ public class EmployeeSearchFrame extends JFrame {
                     }
 
                     // Projects
+                    // Projects
                     if (!selectedProjs.isEmpty()) {
-                        query.append("AND P.Pname ").append(chckbxNotProject.isSelected() ? "NOT IN (" : "IN (");
-                        for (int i = 0; i < selectedProjs.size(); i++) query.append(i == 0 ? "?" : ", ?");
-                        query.append(") ");
+                        if (chckbxNotProject.isSelected()) {
+                            // Employees NOT working on selected projects
+                            query.append("AND E.Ssn NOT IN (");
+                        } else {
+                            // Employees working on selected projects
+                            query.append("AND E.Ssn IN (");
+                        }
+
+                        query.append("SELECT W.Essn FROM WORKS_ON W ");
+                        query.append("JOIN PROJECT P ON W.Pno = P.Pnumber ");
+                        query.append("WHERE P.Pname IN (");
+
+                        for (int i = 0; i < selectedProjs.size(); i++) {
+                            query.append(i == 0 ? "?" : ", ?");
+                        }
+
+                        query.append(")) "); // close IN (...) and subquery
                     }
+
 
                     pstmt = con.prepareStatement(query.toString());
 
