@@ -64,10 +64,9 @@ NOT ProductX:
 - Alicia Zelaya
 
 5. Combined Cases
------------------
 Research + ProductX:
 - John Smith
-- Franklin Wong
+- Joyce English
 
 Administration + Newbenefits:
 - Jennifer Wallace
@@ -77,3 +76,9 @@ Administration + Newbenefits:
 Research + NOT ProductZ:
 - John Smith
 - Joyce English
+
+Administration + NOT Computerization:
+- Jennifer Wallace
+
+Headquarters + Reorganization:
+- James Borg
