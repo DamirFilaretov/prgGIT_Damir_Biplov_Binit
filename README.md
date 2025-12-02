@@ -50,3 +50,27 @@ db.password=YOUR_ACTUAL_PASSWORD
 # The JDBC Driver class
 db.driver=com.mysql.cj.jdbc.Driver
 ```
+
+## 🚀 How to Run
+Open the project in Visual Studio Code.
+
+Ensure the mysql-connector-java-x.x.xx.jar file is in your "Referenced Libraries".
+
+Open EmployeeSearchFrame.java.
+
+Run the file (Click the "Run" button or press F5).
+
+In the Application:
+
+Enter your database name (default is COMPANY) in the text box.
+
+Click Fill to load Departments and Projects.
+
+Select items from the lists and click Search.
+
+## 🐛 Troubleshooting
+"Driver not found" error: Make sure you have downloaded the MySQL JDBC Connector jar file and added it to your VS Code "Referenced Libraries".
+
+"Access denied for user" error: Check your database.prop.properties file. Ensure the password matches your local MySQL setup.
+
+"Communication link failure": Ensure your MySQL server is actually running.
