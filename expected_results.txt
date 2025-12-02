@@ -1,0 +1,79 @@
+EMPLOYEE SEARCH PROJECT - EXPECTED RESULTS (BASIC TEST CASES)
+
+1. Employees by Department
+--------------------------
+Department 1 (Headquarters):
+- James Borg
+
+Department 4 (Administration):
+- Jennifer Wallace
+- Ahmad Jabbar
+- Alicia Zelaya
+
+Department 5 (Research):
+- John Smith
+- Franklin Wong
+- Joyce English
+- Ramesh Narayan
+
+2. Employees by Project
+-----------------------
+ProductX (Project 1):
+- John Smith
+- Franklin Wong
+
+ProductY (Project 2):
+- John Smith
+- Joyce English
+
+ProductZ (Project 3):
+- Franklin Wong
+- Joyce English
+
+Computerization (Project 10):
+- Franklin Wong
+- Ahmad Jabbar
+- Alicia Zelaya
+
+Reorganization (Project 20):
+- Franklin Wong
+- James Borg
+- Jennifer Wallace
+
+Newbenefits (Project 30):
+- Ahmad Jabbar
+- Alicia Zelaya
+- Jennifer Wallace
+
+3. NOT Logic (Department)
+-------------------------
+NOT Research:
+- James Borg
+- Jennifer Wallace
+- Ahmad Jabbar
+- Alicia Zelaya
+
+4. NOT Logic (Project)
+----------------------
+NOT ProductX:
+- Joyce English
+- Ramesh Narayan
+- James Borg
+- Jennifer Wallace
+- Ahmad Jabbar
+- Alicia Zelaya
+
+5. Combined Cases
+-----------------
+Research + ProductX:
+- John Smith
+- Franklin Wong
+
+Administration + Newbenefits:
+- Jennifer Wallace
+- Ahmad Jabbar
+- Alicia Zelaya
+
+Research + NOT ProductZ:
+- John Smith
+- Joyce English
