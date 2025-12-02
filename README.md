@@ -74,3 +74,7 @@ Select items from the lists and click Search.
 "Access denied for user" error: Check your database.prop.properties file. Ensure the password matches your local MySQL setup.
 
 "Unknown database": You missed Step 1. Make sure you ran company.sql.
+
+📌 Multiple Selection
+
+You can select more than one Department or Project by holding Ctrl while clicking. The search will use all selected items when filtering employees.
