@@ -73,4 +73,4 @@ Select items from the lists and click Search.
 
 "Access denied for user" error: Check your database.prop.properties file. Ensure the password matches your local MySQL setup.
 
-"Communication link failure": Ensure your MySQL server is actually running.
+"Unknown database": You missed Step 1. Make sure you ran company.sql.
