@@ -37,13 +37,13 @@ Computerization (Project 10):
 
 Reorganization (Project 20):
 - Franklin Wong
-- Joyce English
 - James Borg
 - Jennifer Wallace
 
 Newbenefits (Project 30):
 - Ahmad Jabbar
 - Alicia Zelaya
+- Jennifer Wallace
 
 3. NOT Logic (Department)
 -------------------------
@@ -69,10 +69,11 @@ Research + ProductX:
 - John Smith
 - Franklin Wong
 
-Administration + Project30:
+Administration + Newbenefits:
+- Jennifer Wallace
 - Ahmad Jabbar
 - Alicia Zelaya
 
-Research + NOT ProjectZ:
+Research + NOT ProductZ:
 - John Smith
-- Ramesh Narayan
+- Joyce English
