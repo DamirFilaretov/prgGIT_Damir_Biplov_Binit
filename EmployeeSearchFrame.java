@@ -168,94 +168,127 @@ public class EmployeeSearchFrame extends JFrame {
                 Connection con = null;
                 PreparedStatement pstmt = null;
                 ResultSet rs = null;
-
+            
                 try {
+                    // Read database name entered by the user
                     String dbName = txtDatabase.getText();
-                    con = DatabaseHelper.getConnection(dbName); // Use Helper here too!
-
+            
+                    // Establish connection using helper method
+                    con = DatabaseHelper.getConnection(dbName);
+            
+                    // Begin building the SQL query dynamically
                     StringBuilder query = new StringBuilder();
                     query.append("SELECT DISTINCT E.Fname, E.Lname FROM EMPLOYEE E ");
                     query.append("JOIN DEPARTMENT D ON E.Dno = D.Dnumber ");
-                    query.append("WHERE 1=1 ");
-
-
+                    query.append("WHERE 1=1 ");   // Base condition to simplify appending ANDs
+            
+                    // Get all selected Departments and Projects from the GUI lists
                     java.util.List<String> selectedDepts = lstDepartment.getSelectedValuesList();
                     java.util.List<String> selectedProjs = lstProject.getSelectedValuesList();
-
-                    // Departments
+            
+                    // --------------------------
+                    // Department Filtering Logic
+                    // --------------------------
                     if (!selectedDepts.isEmpty()) {
-                        query.append("AND D.Dname ").append(chckbxNotDept.isSelected() ? "NOT IN (" : "IN (");
-                        for (int i = 0; i < selectedDepts.size(); i++) query.append(i == 0 ? "?" : ", ?");
+                        // Choose IN or NOT IN depending on checkbox
+                        query.append("AND D.Dname ")
+                             .append(chckbxNotDept.isSelected() ? "NOT IN (" : "IN (");
+            
+                        // Add placeholders for prepared statement (?, ?, ?)
+                        for (int i = 0; i < selectedDepts.size(); i++)
+                            query.append(i == 0 ? "?" : ", ?");
+            
                         query.append(") ");
                     }
-
-                    // Projects
-                    // Projects
+            
+                    // Project Filtering Logic
                     if (!selectedProjs.isEmpty()) {
+                        // If NOT is selected → exclude employees who work on these projects
                         if (chckbxNotProject.isSelected()) {
-                            // Employees NOT working on selected projects
                             query.append("AND E.Ssn NOT IN (");
                         } else {
-                            // Employees working on selected projects
+                            // Otherwise include employees who work on the selected projects
                             query.append("AND E.Ssn IN (");
                         }
-
+            
+                        // Subquery that finds employees who work on selected projects
                         query.append("SELECT W.Essn FROM WORKS_ON W ");
                         query.append("JOIN PROJECT P ON W.Pno = P.Pnumber ");
                         query.append("WHERE P.Pname IN (");
-
+            
                         for (int i = 0; i < selectedProjs.size(); i++) {
                             query.append(i == 0 ? "?" : ", ?");
                         }
-
-                        query.append(")) "); // close IN (...) and subquery
+            
+                        query.append(")) "); // closes IN (...) and the subquery
                     }
-
-
+            
+                    // Prepare the final SQL command with all placeholders
                     pstmt = con.prepareStatement(query.toString());
-
+            
                     int paramIndex = 1;
-                    for (String dept : selectedDepts) pstmt.setString(paramIndex++, dept);
-                    for (String proj : selectedProjs) pstmt.setString(paramIndex++, proj);
-
+            
+                    // First fill department names
+                    for (String dept : selectedDepts)
+                        pstmt.setString(paramIndex++, dept);
+            
+                    // Then fill project names (order is important)
+                    for (String proj : selectedProjs)
+                        pstmt.setString(paramIndex++, proj);
+            
+                    // Execute the SQL query
                     rs = pstmt.executeQuery();
-
+            
+                    // Build result text for display
                     StringBuilder results = new StringBuilder();
                     boolean found = false;
+            
                     while (rs.next()) {
                         found = true;
-                        results.append(rs.getString("Fname")).append(" ").append(rs.getString("Lname")).append("\n");
+                        results.append(rs.getString("Fname"))
+                               .append(" ")
+                               .append(rs.getString("Lname"))
+                               .append("\n");
                     }
-
-                    if (!found) textAreaEmployee.setText("No employees found matching criteria.");
-                    else textAreaEmployee.setText(results.toString());
-
+            
+                    // If no results, notify user; otherwise show the list
+                    if (!found)
+                        textAreaEmployee.setText("No employees found matching criteria.");
+                    else
+                        textAreaEmployee.setText(results.toString());
+            
                 } catch (Exception ex) {
-                     JOptionPane.showMessageDialog(null, "Error Searching: " + ex.getMessage());
+                    // Show any SQL or connection errors
+                    JOptionPane.showMessageDialog(null, "Error Searching: " + ex.getMessage());
                 } finally {
+                    // Always close all SQL resources to avoid memory/database leaks
                     try { if (rs != null) rs.close(); } catch (SQLException se) {}
                     try { if (pstmt != null) pstmt.close(); } catch (SQLException se) {}
                     try { if (con != null) con.close(); } catch (SQLException se) {}
                 }
             }
-        });
-
-        JButton btnClear = new JButton("Clear");
-        btnClear.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                textAreaEmployee.setText("");
-                lstDepartment.clearSelection();
-                lstProject.clearSelection();
-                chckbxNotDept.setSelected(false);
-                chckbxNotProject.setSelected(false);
+            });
+            
+            // ----------------------------------------
+            // Clear button: resets all selections and output
+            // ----------------------------------------
+            JButton btnClear = new JButton("Clear");
+            btnClear.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    textAreaEmployee.setText("");        // Clear output
+                    lstDepartment.clearSelection();      // Clear department list selection
+                    lstProject.clearSelection();         // Clear project list selection
+                    chckbxNotDept.setSelected(false);    // Reset NOT dept checkbox
+                    chckbxNotProject.setSelected(false); // Reset NOT project checkbox
+                }
+            });
+            btnClear.setBounds(236, 276, 89, 23);
+            contentPane.add(btnClear);
+            
+            // Text area (inside scroll pane) for showing results
+            textAreaEmployee = new JTextArea();
+            JScrollPane scrollEmployee = new JScrollPane(textAreaEmployee);
+            scrollEmployee.setBounds(36, 197, 339, 68);
+            contentPane.add(scrollEmployee);
             }
-        });
-        btnClear.setBounds(236, 276, 89, 23);
-        contentPane.add(btnClear);
-
-        textAreaEmployee = new JTextArea();
-        JScrollPane scrollEmployee = new JScrollPane(textAreaEmployee);
-        scrollEmployee.setBounds(36, 197, 339, 68);
-        contentPane.add(scrollEmployee);
-    }
-}
+            }
