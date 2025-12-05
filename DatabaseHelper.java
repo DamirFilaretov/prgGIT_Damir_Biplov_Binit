@@ -32,46 +32,65 @@ public class DatabaseHelper {
     }
 
     public static List<String> getDepartments(String dbName) throws Exception {
-        List<String> list = new ArrayList<>();
-        Connection con = null;
-        Statement stmt = null;
-        ResultSet rs = null;
+    // Create a list to store department names
+    List<String> list = new ArrayList<>();
+    Connection con = null;
+    Statement stmt = null;
+    ResultSet rs = null;
 
-        try {
-            con = getConnection(dbName);
-            stmt = con.createStatement();
-            rs = stmt.executeQuery("SELECT Dname FROM DEPARTMENT ORDER BY Dname");
+    try {
+        // Establish connection to the database
+        con = getConnection(dbName);
 
-            while (rs.next()) {
-                list.add(rs.getString("Dname"));
-            }
-        } finally {
-            if (rs != null) rs.close();
-            if (stmt != null) stmt.close();
-            if (con != null) con.close();
+        // Create a simple SQL statement
+        stmt = con.createStatement();
+
+        // Execute query to retrieve all department names in alphabetical order
+        rs = stmt.executeQuery("SELECT Dname FROM DEPARTMENT ORDER BY Dname");
+
+        // Loop through returned rows and add each department name to the list
+        while (rs.next()) {
+            list.add(rs.getString("Dname"));
         }
-        return list;
+    } finally {
+        // Close ResultSet, Statement, and Connection to prevent memory leaks
+        if (rs != null) rs.close();
+        if (stmt != null) stmt.close();
+        if (con != null) con.close();
     }
 
-    public static List<String> getProjects(String dbName) throws Exception {
-        List<String> list = new ArrayList<>();
-        Connection con = null;
-        Statement stmt = null;
-        ResultSet rs = null;
+    // Return list of department names
+    return list;
+}
 
-        try {
-            con = getConnection(dbName);
-            stmt = con.createStatement();
-            rs = stmt.executeQuery("SELECT Pname FROM PROJECT ORDER BY Pname");
+public static List<String> getProjects(String dbName) throws Exception {
+    // Create a list to store project names
+    List<String> list = new ArrayList<>();
+    Connection con = null;
+    Statement stmt = null;
+    ResultSet rs = null;
 
-            while (rs.next()) {
-                list.add(rs.getString("Pname"));
-            }
-        } finally {
-            if (rs != null) rs.close();
-            if (stmt != null) stmt.close();
-            if (con != null) con.close();
+    try {
+        // Establish connection to the database
+        con = getConnection(dbName);
+
+        // Create a simple SQL statement
+        stmt = con.createStatement();
+
+        // Execute query to retrieve all project names in alphabetical order
+        rs = stmt.executeQuery("SELECT Pname FROM PROJECT ORDER BY Pname");
+
+        // Loop through returned rows and add each project name to the list
+        while (rs.next()) {
+            list.add(rs.getString("Pname"));
         }
-        return list;
+    } finally {
+        // Close ResultSet, Statement, and Connection to prevent memory leaks
+        if (rs != null) rs.close();
+        if (stmt != null) stmt.close();
+        if (con != null) con.close();
     }
+
+    // Return list of project names
+    return list;
 }
